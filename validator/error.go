@@ -3,8 +3,8 @@ package validator
 import (
 	"fmt"
 
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/gqlerror"
+	"github.com/aloder/gqlparser/ast"
+	"github.com/aloder/gqlparser/gqlerror"
 )
 
 type ErrorOption func(err *gqlerror.Error)

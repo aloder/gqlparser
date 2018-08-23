@@ -1,11 +1,11 @@
 package gqlparser
 
 import (
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/gqlerror"
-	"github.com/vektah/gqlparser/parser"
-	"github.com/vektah/gqlparser/validator"
-	_ "github.com/vektah/gqlparser/validator/rules"
+	"github.com/aloder/gqlparser/ast"
+	"github.com/aloder/gqlparser/gqlerror"
+	"github.com/aloder/gqlparser/parser"
+	"github.com/aloder/gqlparser/validator"
+	_ "github.com/aloder/gqlparser/validator/rules"
 )
 
 func LoadSchema(str ...*ast.Source) (*ast.Schema, *gqlerror.Error) {

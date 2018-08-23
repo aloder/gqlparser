@@ -3,8 +3,8 @@ package validator
 import (
 	"strconv"
 
-	"github.com/vektah/gqlparser/ast"
-	. "github.com/vektah/gqlparser/validator"
+	"github.com/aloder/gqlparser/ast"
+	. "github.com/aloder/gqlparser/validator"
 )
 
 func init() {

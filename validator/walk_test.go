@@ -4,8 +4,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/parser"
+	"github.com/aloder/gqlparser/ast"
+	"github.com/aloder/gqlparser/parser"
 )
 
 func TestWalker(t *testing.T) {

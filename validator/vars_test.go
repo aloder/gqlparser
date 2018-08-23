@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 
 	"github.com/stretchr/testify/require"
-	"github.com/vektah/gqlparser"
-	"github.com/vektah/gqlparser/ast"
-	"github.com/vektah/gqlparser/validator"
+	"github.com/aloder/gqlparser"
+	"github.com/aloder/gqlparser/ast"
+	"github.com/aloder/gqlparser/validator"
 )
 
 func TestValidateVars(t *testing.T) {
