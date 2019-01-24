@@ -4,6 +4,7 @@ package validator
 
 import (
 	"strconv"
+	"strings"
 
 	. "github.com/aloder/gqlparser/ast"
 	"github.com/aloder/gqlparser/gqlerror"
@@ -158,11 +159,20 @@ func ValidateSchemaDocument(ast *SchemaDocument) (*Schema, *gqlerror.Error) {
 }
 
 func validateDirective(schema *Schema, def *DirectiveDefinition) *gqlerror.Error {
+	if err := validateName(def.Position, def.Name); err != nil {
+		// now, GraphQL spec doesn't have reserved directive name
+		return err
+	}
+
 	return validateArgs(schema, def.Arguments, def)
 }
 
 func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 	for _, field := range def.Fields {
+		if err := validateName(field.Position, field.Name); err != nil {
+			// now, GraphQL spec doesn't have reserved field name
+			return err
+		}
 		if err := validateTypeRef(schema, field.Type); err != nil {
 			return err
 		}
@@ -184,6 +194,37 @@ func validateDefinition(schema *Schema, def *Definition) *gqlerror.Error {
 		}
 	}
 
+	switch def.Kind {
+	case Object, Interface:
+		if len(def.Fields) == 0 {
+			return gqlerror.ErrorPosf(def.Position, "%s must define one or more fields.", def.Kind)
+		}
+	case Enum:
+		if len(def.EnumValues) == 0 {
+			return gqlerror.ErrorPosf(def.Position, "%s must define one or more unique enum values.", def.Kind)
+		}
+	case InputObject:
+		if len(def.Fields) == 0 {
+			return gqlerror.ErrorPosf(def.Position, "%s must define one or more input fields.", def.Kind)
+		}
+	}
+
+	for idx, field1 := range def.Fields {
+		for _, field2 := range def.Fields[idx+1:] {
+			if field1.Name == field2.Name {
+				return gqlerror.ErrorPosf(field2.Position, "Field %s.%s can only be defined once.", def.Name, field2.Name)
+			}
+		}
+	}
+
+	if !def.BuiltIn {
+		// GraphQL spec has reserved type names a lot!
+		err := validateName(def.Position, def.Name)
+		if err != nil {
+			return err
+		}
+	}
+
 	return validateDirectives(schema, def.Directives, nil)
 }
 
@@ -196,6 +237,10 @@ func validateTypeRef(schema *Schema, typ *Type) *gqlerror.Error {
 
 func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, arg := range args {
+		if err := validateName(arg.Position, arg.Name); err != nil {
+			// now, GraphQL spec doesn't have reserved argument name
+			return err
+		}
 		if err := validateTypeRef(schema, arg.Type); err != nil {
 			return err
 		}
@@ -208,6 +253,10 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 
 func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
+		if err := validateName(dir.Position, dir.Name); err != nil {
+			// now, GraphQL spec doesn't have reserved directive name
+			return err
+		}
 		if currentDirective != nil && dir.Name == currentDirective.Name {
 			return gqlerror.ErrorPosf(dir.Position, "Directive %s cannot refer to itself.", currentDirective.Name)
 		}
@@ -215,6 +264,13 @@ func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *Di
 			return gqlerror.ErrorPosf(dir.Position, "Undefined directive %s.", dir.Name)
 		}
 		dir.Definition = schema.Directives[dir.Name]
+	}
+	return nil
+}
+
+func validateName(pos *Position, name string) *gqlerror.Error {
+	if strings.HasPrefix(name, "__") {
+		return gqlerror.ErrorPosf(pos, `Name "%s" must not begin with "__", which is reserved by GraphQL introspection.`, name)
 	}
 	return nil
 }
