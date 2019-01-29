@@ -4,7 +4,6 @@ package validator
 
 import (
 	"strconv"
-	"strings"
 
 	. "github.com/aloder/gqlparser/ast"
 	"github.com/aloder/gqlparser/gqlerror"
@@ -253,10 +252,7 @@ func validateArgs(schema *Schema, args ArgumentDefinitionList, currentDirective 
 
 func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *DirectiveDefinition) *gqlerror.Error {
 	for _, dir := range dirs {
-		if err := validateName(dir.Position, dir.Name); err != nil {
-			// now, GraphQL spec doesn't have reserved directive name
-			return err
-		}
+
 		if currentDirective != nil && dir.Name == currentDirective.Name {
 			return gqlerror.ErrorPosf(dir.Position, "Directive %s cannot refer to itself.", currentDirective.Name)
 		}
@@ -269,8 +265,10 @@ func validateDirectives(schema *Schema, dirs DirectiveList, currentDirective *Di
 }
 
 func validateName(pos *Position, name string) *gqlerror.Error {
-	if strings.HasPrefix(name, "__") {
-		return gqlerror.ErrorPosf(pos, `Name "%s" must not begin with "__", which is reserved by GraphQL introspection.`, name)
-	}
 	return nil
+	/*
+		if strings.HasPrefix(name, "__") {
+			return gqlerror.ErrorPosf(pos, `Name "%s" must not begin with "__", which is reserved by GraphQL introspection.`, name)
+		}
+		return nil*/
 }

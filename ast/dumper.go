@@ -65,7 +65,7 @@ func (d *dumper) dump(v reflect.Value) {
 		d.dumpStruct(v)
 
 	default:
-		panic(fmt.Errorf("unsupported kind: %s\n buf: %s", v.Kind().String(), d.String()))
+		//panic(fmt.Errorf("unsupported kind: %s\n buf: %s", v.Kind().String(), d.String()))
 	}
 }
 
